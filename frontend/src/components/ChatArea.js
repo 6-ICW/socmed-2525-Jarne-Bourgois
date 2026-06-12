@@ -111,6 +111,19 @@ function MessageItem({
               </span>
             </div>
           </div>
+        ) : msg.is_deleted ? (
+          <div className="message-content">
+            <i>Bericht verwijderd</i>
+
+            {isMine && (
+              <button
+                style={{ marginLeft: 10 }}
+                onClick={() => onRestore(msg.id)}
+              >
+                Herstellen
+              </button>
+            )}
+          </div>
         ) : (
           <div className="message-content">{msg.content}</div>
         )}
@@ -201,7 +214,15 @@ export default function ChatArea({ channel, user, currentUserRole }) {
           prev.map((m) => (m.id === data.message.id ? data.message : m))
         );
       } else if (data.type === "message_deleted") {
-        setMessages((prev) => prev.filter((m) => m.id !== data.message_id));
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === data.message_id ? { ...m, is_deleted: true } : m
+          )
+        );
+      } else if (data.type === "message_restored") {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === data.message.id ? data.message : m))
+        );
       }
     };
 
@@ -246,6 +267,16 @@ export default function ChatArea({ channel, user, currentUserRole }) {
           action: "edit_message",
           message_id: messageId,
           content,
+        })
+      );
+    }
+  };
+  const restoreMessage = (messageId) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(
+        JSON.stringify({
+          action: "restore_message",
+          message_id: messageId,
         })
       );
     }
@@ -312,6 +343,7 @@ export default function ChatArea({ channel, user, currentUserRole }) {
             isAdmin={isAdmin}
             onDelete={deleteMessage}
             onEdit={editMessage}
+            onRestore={restoreMessage}
           />
         ))}
         <div ref={bottomRef} />
