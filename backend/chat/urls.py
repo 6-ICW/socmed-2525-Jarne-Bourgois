@@ -30,6 +30,7 @@ urlpatterns = [
     # Messages
     path('channels/<int:channel_id>/messages/', views.message_list),
     path('messages/<int:message_id>/', views.message_detail),
+    path('messages/<int:message_id>/restore/', views.restore_message),
 
     # Invites
     path('servers/<int:server_id>/invite/', views.create_invite),

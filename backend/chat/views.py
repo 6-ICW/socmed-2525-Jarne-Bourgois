@@ -324,7 +324,9 @@ def message_detail(request, message_id):
     if request.method == 'DELETE':
         if not is_author and not is_admin:
             return Response({'error': 'Geen rechten om dit bericht te verwijderen'}, status=403)
-        msg.delete()
+        msg.is_deleted = True
+        msg.deleted_at = timezone.now()
+        msg.save()
         return Response(status=204)
 
     # PUT — only author can edit
@@ -336,6 +338,23 @@ def message_detail(request, message_id):
     msg.content = content
     msg.is_edited = True
     msg.save()
+    return Response(MessageSerializer(msg).data)
+
+
+@api_view(['POST'])
+def restore_message(request, message_id):
+    try:
+        msg = Message.objects.get(pk=message_id)
+    except Message.DoesNotExist:
+        return Response(status=404)
+
+    if msg.author != request.user:
+        return Response(status=403)
+
+    msg.is_deleted = False
+    msg.deleted_at = None
+    msg.save()
+
     return Response(MessageSerializer(msg).data)
 
 

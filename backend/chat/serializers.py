@@ -52,7 +52,16 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ['id', 'content', 'author', 'created_at', 'updated_at', 'is_edited']
+        fields = [
+    'id',
+    'content',
+    'author',
+    'created_at',
+    'updated_at',
+    'is_edited',
+    'is_deleted',
+    'deleted_at',
+]
 
 
 class ServerMemberSerializer(serializers.ModelSerializer):

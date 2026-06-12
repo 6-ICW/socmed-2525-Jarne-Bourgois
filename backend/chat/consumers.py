@@ -76,6 +76,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         self.room_group_name,
                         {'type': 'message_deleted', 'message_id': message_id}
                     )
+            elif action == "restore_message":
+                await self.restore_message(data["message_id"] )
         except Exception as e:
             print(f'WebSocket error: {e}')
 
@@ -87,6 +89,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def message_deleted(self, event):
         await self.send(text_data=json.dumps({'type': 'message_deleted', 'message_id': event['message_id']}))
+
+    async def message_restored(self, event):
+        await self.send(
+            text_data=json.dumps({
+                'type': 'message_restored',
+                'message': event['message']
+            })
+        )
 
     @database_sync_to_async
     def check_access(self, user, channel_id):
@@ -131,12 +141,44 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 server=msg.channel.server, user=user, role__in=['owner', 'admin']
             ).exists()
             if is_author or is_admin:
-                msg.delete()
+                msg.is_deleted = True
+                msg.deleted_at = timezone.now()
+                msg.save()
                 return True
             return False
         except Message.DoesNotExist:
             return False
 
+    @database_sync_to_async
+    def restore_message_db(self, message_id):
+
+         msg = Message.objects.get(id=message_id)
+
+         if msg.author != self.scope["user"]:
+            return None
+
+         msg.is_deleted = False
+         msg.deleted_at = None
+         msg.save()
+
+         return msg
+
+    async def restore_message(self, message_id):
+
+        msg = await self.restore_message_db(message_id)
+
+        if not msg:
+            return
+
+        msg_data = await self.serialize_message(msg)
+
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'message_restored',
+                'message': msg_data
+            }
+        )
     @database_sync_to_async
     def serialize_message(self, message):
         message.refresh_from_db()
