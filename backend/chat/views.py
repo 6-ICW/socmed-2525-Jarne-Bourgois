@@ -31,6 +31,10 @@ def touch_user(user):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
+    password = request.data.get('password')
+    if len(password) < 8 or password.lower() == password or password.upper() == password or password.alpha() == True :
+        return Response({'error': 'Ongeldige passwoord'}, status=400)
+    print(password)
     serializer = RegisterSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
