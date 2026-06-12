@@ -1,0 +1,68 @@
+# Python
+
+venv/
+**pycache**/
+*.pyc
+*.pyo
+*.pyd
+
+# Django
+
+db.sqlite3
+media/
+staticfiles/
+
+# Environment variables
+
+.env
+.env.local
+
+# Logs
+
+*.log
+
+# VS Code
+
+.vscode/
+
+# JetBrains
+
+.idea/
+
+# Node
+
+node_modules/
+
+# React build
+
+build/
+dist/
+
+# OS files
+
+.DS_Store
+Thumbs.db
+
+# Python packaging
+
+*.egg-info/
+.eggs/
+
+# Coverage
+
+.coverage
+htmlcov/
+
+# Pytest
+
+.pytest_cache/
+
+# Django migrations cache
+
+*.mo
+
+# Temporary files
+
+tmp/
+temp/
+*.tmp

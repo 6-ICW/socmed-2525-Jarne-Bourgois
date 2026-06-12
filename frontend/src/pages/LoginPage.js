@@ -1,24 +1,26 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
     try {
       await login(username, password);
-      navigate('/home');
+      navigate("/home");
     } catch (err) {
-      setError(err.response?.data?.error || 'Inloggen mislukt. Controleer je gegevens.');
+      setError(
+        err.response?.data?.error || "Inloggen mislukt. Controleer je gegevens."
+      );
     } finally {
       setLoading(false);
     }
@@ -36,7 +38,7 @@ export default function LoginPage() {
             <input
               type="text"
               value={username}
-              onChange={e => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
               placeholder="Voer je gebruikersnaam in"
               autoFocus
               required
@@ -47,18 +49,17 @@ export default function LoginPage() {
             <input
               type="password"
               value={password}
-              onChange={e => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Voer je wachtwoord in"
               required
             />
           </div>
           <button className="btn-primary" type="submit" disabled={loading}>
-            {loading ? 'Inloggen...' : 'Inloggen'}
+            {loading ? "Inloggen..." : "Inloggen"}
           </button>
         </form>
         <div className="auth-switch">
-          Heb je nog geen account?{' '}
-          <Link to="/register">Registreer</Link>
+          Heb je nog geen account? <Link to="/register">Registreer</Link>
         </div>
       </div>
     </div>
